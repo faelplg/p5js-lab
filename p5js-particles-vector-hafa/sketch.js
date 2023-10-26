@@ -3,8 +3,8 @@
 // --
 // -- SHARED VARIABLES
 let grid;
-let numCols = 12;
-let numRows = 12;
+let numCols = 24;
+let numRows = 24;
 // --
 // -- SETUP CANVAS
 function setup() {
@@ -13,7 +13,7 @@ function setup() {
 	// - section: project settings
 	createCanvas(windowWidth, windowHeight);
 	rectMode(CENTER);
-	noLoop();
+	// noLoop();
 	// - section: project styles
 	// background("#191C1A"); // background (dark)
 	// - section: init grid
@@ -41,15 +41,9 @@ function draw() {
 	// - section: draw lines
 	grid.drawBoundaries();
 	// grid.drawLines();
-	// grid.drawMatrixLines();
-	// - section: draw particles
-	// grid.drawParticles("bounce");
+	grid.drawMatrixLines();
 	// - section: draw agents
-	grid.drawAgents();
-	// - section: particles effects
-	// drawParticleLines(grid.particles);
-	// drawParticleMouseLines(grid.particles, mouseX, mouseY);
-	// reactMouseBounce(grid.particles, mouseX, mouseY);
+	grid.drawAgents("bounce");
 	// - log: end DRAW CANVAS
 	// console.log("--");
 } // --
@@ -81,7 +75,6 @@ class Grid {
 		}
 		// - section: define agents
 		this.points = Array(this.cells); // matrix points
-		this.particles = Array(this.points.length); // grid particles
 		this.agents = Array(this.points.length); // grid agents
 	}
 	// - method: init matrix grid
@@ -97,13 +90,8 @@ class Grid {
 				this.points[i] = this.matrix[r][c];
 				switch (OPTION) {
 					case "random":
-						this.particles[i] = new Particle({
-							x: random(0, this.mw),
-							y: random(0, this.mh),
-						});
 						break;
 					default:
-						this.particles[i] = new Particle(this.points[i]);
 						this.agents[i] = new Agent(this.points[i]);
 						break;
 				}
@@ -131,68 +119,53 @@ class Grid {
 			point.draw();
 		});
 	}
-	// - method: draw grid particles
-	drawParticles(OPTION) {
-		this.particles.forEach((particle) => {
+	// - method: draw grid agents
+	drawAgents(OPTION) {
+		this.agents.forEach((agent) => {
 			// section: reset strategy
 			switch (OPTION) {
 				case "bounce": // bounce at edges
-					if (particle.px < 0 || particle.px > this.mw) {
-						particle.bounceX();
+					if (agent.pos.x < 0 || agent.pos.x > this.mw) {
+						agent.bounceX();
 					}
-					if (particle.py < 0 || particle.py > this.mh) {
-						particle.bounceY();
+					if (agent.pos.y < 0 || agent.pos.y > this.mh) {
+						agent.bounceY();
 					}
 					break;
 				case "reset": // reset
 					if (
-						particle.px < 0 ||
-						particle.px > this.mw ||
-						particle.py < 0 ||
-						particle.py > this.mh
+						agent.pos.x < 0 ||
+						agent.pos.x > this.mw ||
+						agent.pos.y < 0 ||
+						agent.pos.y > this.mh
 					) {
-						particle.reset();
+						agent.reset();
 					}
 					break;
 				case "reset-invert": // reset + invert movement
-					if (particle.px < 0 || particle.px > this.mw) {
-						particle.reset();
-						particle.bounceX();
+					if (agent.pos.x < 0 || agent.pos.x > this.mw) {
+						agent.reset();
+						agent.bounceX();
 					}
-					if (particle.py < 0 || particle.py > this.mh) {
-						particle.reset();
-						particle.bounceY();
+					if (agent.pos.y < 0 || agent.pos.y > this.mh) {
+						agent.reset();
+						agent.bounceY();
 					}
 					break;
 				default: // destroy
-					if (particle.px < 0 || particle.px > this.mw) {
-						grid.destroyParticle(particle);
-					}
-					if (particle.py < 0 || particle.py > this.mh) {
-						grid.destroyParticle(particle);
-					}
+					// if (agent.pos.x < 0 || agent.pos.x > this.mw) {
+					// 	grid.destroyAgent(agent);
+					// }
+					// if (agent.pos.y < 0 || agent.pos.y > this.mh) {
+					// 	grid.destroyAgent(agent);
+					// }
 
 					break;
 			}
-			particle.acelerate();
-			particle.draw();
-		});
-	}
-	// - method: draw grid agents
-	drawAgents() {
-		this.agents.forEach((agent) => {
-			console.log(agent);
+			agent.applyForce(createVector(0, 0.2));
 			agent.update();
 			agent.draw();
 		});
-	}
-	// - method: destroy particle
-	destroyParticle(particle) {
-		let index = this.particles.indexOf(particle);
-		if (index !== this.particles.length - 1) {
-			this.particles[index] = this.particles[this.particles.length - 1];
-		}
-		this.particles.pop();
 	}
 	// - method: draw points lines
 	drawLines() {
@@ -315,124 +288,51 @@ class Point {
 		point(this.x, this.y);
 	}
 } // --
-// -- CLASS: PARTICLE
-class Particle {
+// -- CLASS: AGENT
+class Agent {
 	// - method: class constructor
 	constructor(point) {
 		this.point = point;
-		this.px = point.x;
-		this.py = point.y;
-		this.diameter = 32;
-		this.vx = random(-2, 2);
-		this.vy = random(-2, 2);
-	}
-	// - method: draw particle
-	draw() {
-		fill(255, 182, 139, 128); // tertiary (dark)
-		// noFill();
-		noStroke();
-		circle(this.px, this.py, this.diameter);
-	}
-	// - method: acelerate particle
-	acelerate() {
-		this.px += this.vx;
-		this.py += this.vy;
-	}
-	// - method: reset particle at point origin
-	reset() {
-		this.px = this.point.x;
-		this.py = this.point.y;
-	}
-	// - method: x bounce
-	bounceX() {
-		this.vx *= -1;
-	}
-	// - method: y bounce
-	bounceY() {
-		this.vy *= -1;
-	}
-} // --
-// -- CLASS: AGENT
-class Agent {
-	constructor(point) {
-		this.point = point;
 		this.pos = createVector(point.x, point.y);
-		this.vel = createVector(random(-2, 2), random(-2, 2));
+		this.vel = createVector(random(-1, 1), random(-1, 1));
 		this.accel = createVector(0, 0);
-		this.diam = 32;
+		this.diam = 16;
 	}
-
+	// - method: apply vector to acceleration
 	applyForce(power) {
 		this.accel.add(power);
 	}
-
+	// - method: draw agent
 	update() {
 		this.vel.add(this.accel);
 		this.pos.add(this.vel);
-		this.accel.mult(0); // clean acceleration
+		this.accel.mult(0); // clear acceleration
 	}
-
+	// - method: draw agent
 	draw() {
-		console.log("Agent/draw");
 		fill(255, 182, 139, 128); // tertiary (dark)
-		// noFill();
 		noStroke();
-		ellipse(this.pos.x, this.pos.y, this.diameter, this.diameter);
-		circle(this.pos.x, this.pos.y, this.diameter);
+		ellipse(this.pos.x, this.pos.y, this.diam, this.diam);
+	}
+	// - method: x bounce
+	bounceX() {
+		this.vel.x *= -1;
+	}
+	// - method: y bounce
+	bounceY() {
+		this.vel.y *= -1;
 	}
 } // --
-// -- FUNCTION: drawParticleLines
-// i: draw lines between closer particles
-const drawParticleLines = (particles) => {
-	let dMin = 32;
-	stroke(255, 182, 139, 128); // tertiary (dark)
-	strokeWeight(64);
-	// noStroke();
-	for (let i = 0; i < particles.length; i = i + 1) {
-		let pi = particles[i];
-		for (let j = i + 1; j < particles.length; j = j + 1) {
-			let pj = particles[j];
-			let d = dist(pi.px, pi.py, pj.px, pj.py);
-			if (d < dMin) {
-				line(pi.px, pi.py, pj.px, pj.py);
-			}
-		}
-	}
-};
-// -- FUNCTION: drawParticleMouseLines
-// i: draw lines between mouse closer particles
-const drawParticleMouseLines = (particles, mousex, mousey) => {
-	let dMin = 256;
-	stroke(255, 182, 139, 64); // tertiary (dark)
-	strokeWeight(64);
-	for (let i = 0; i < particles.length; i++) {
-		let pi = particles[i];
-		let d = dist(mousex, mousey, pi.px, pi.py);
-		if (d < dMin) {
-			line(mousex - grid.cw * 0.5, mousey - grid.ch * 0.5, pi.px, pi.py);
-		}
-	}
-};
-// -- FUNCTION: reactMouseBounce
-// i: bounce particles with the mouse
-const reactMouseBounce = (particles, mousex, mousey) => {
-	for (let i = 0; i < particles.length; i++) {
-		let p = particles[i];
-		let d = dist(mousex, mousey, p.px, p.py);
-		if (d <= p.diameter * 4) {
-			let angulo = atan2(mousey - p.py, mousex - p.px);
-			p.vx *= -1;
-			p.vy *= -1;
-			p.px -= cos(angulo) * 10;
-			p.py -= sin(angulo) * 10;
-		}
-	}
-};
 // -- FUNCTION: keyPressed
 // i: toggle fullscreen
 const keyPressed = () => {
-	console.log("keypressed...");
-	let fs = fullscreen();
-	fullscreen(!fs);
+	switch (key) {
+		case "f":
+			let fs = fullscreen();
+			fullscreen(!fs);
+			break;
+		default:
+			break;
+	}
 };
 // -- EOSKETCH
