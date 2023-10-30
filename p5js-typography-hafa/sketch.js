@@ -7,11 +7,11 @@ let numCols = 30;
 let numRows = 30;
 let font;
 let text;
-let txt = "ha.fa";
+let txt = "amor";
 // --
 // -- PRELOAD DATA
 function preload() {
-	font = loadFont("Roboto-Regular.ttf");
+	font = loadFont("Monofett-Regular.ttf");
 }
 // -- SETUP CANVAS
 function setup() {
@@ -21,7 +21,7 @@ function setup() {
 	createCanvas(windowWidth, windowHeight);
 	angleMode(DEGREES);
 	rectMode(CENTER);
-	noLoop();
+	// noLoop();
 	// - section: project styles
 	// background("#191C1A"); // background (dark)
 	// - section: init grid
@@ -56,8 +56,8 @@ function draw() {
 	// grid.drawMatrixLines();
 	// - section: draw text
 	// text.drawFactor(map((mouseX + mouseY) / 2, 0, width, 0.005, 0.1));
-  // text.drawVertex();
-  text.runEffect(frameCount);
+	// text.drawVertex();
+	text.runEffect(frameCount);
 	// - log: end DRAW CANVAS
 	console.log("--");
 } // --
@@ -218,7 +218,12 @@ class Text {
 		this.gh = grid.gh - grid.ch;
 		this.txcenter = this.gw / 2;
 		this.tycenter = this.gh / 2;
-		this.points = font.textToPoints(text, this.txcenter, this.tycenter, fontSize);
+		this.points = font.textToPoints(
+			text,
+			this.txcenter,
+			this.tycenter,
+			fontSize,
+		);
 		this.bounds = font.textBounds(text, this.txcenter, this.tycenter, fontSize);
 	}
 	init() {
@@ -227,8 +232,8 @@ class Text {
 			point.y = point.y + this.bounds.h / 2;
 		});
 	}
-  initFactor(factor) {
-    this.points = this.font.textToPoints(
+	initFactor(factor) {
+		this.points = this.font.textToPoints(
 			this.text,
 			this.txcenter,
 			this.tycenter,
@@ -237,8 +242,8 @@ class Text {
 				sampleFactor: factor,
 			},
 		);
-    this.init();
-  }
+		this.init();
+	}
 	draw() {
 		this.points.forEach((point) => {
 			circle(point.x, point.y, 20);
@@ -246,26 +251,28 @@ class Text {
 	}
 	drawFactor(factor) {
 		this.initFactor(factor);
-    this.draw();
+		this.draw();
 	}
-  drawVertex() {
-    noFill();
-    stroke(255, 150);
-    beginShape();
-    this.points.forEach(point => {
-      vertex(point.x, point.y);
-    });
-    endShape();
-  }
-  runEffect(frameCount) {
-    noStroke();
-    let d = 0;
-    let phase = 0;
-    this.points.forEach(point => {
-      phase = dist(mouseX, mouseY, point.x, point.y);
-      d = 60 * sin(frameCount + phase);
-      circle(point.x, point.y, d);
-    });
-  }
+	drawVertex() {
+		noFill();
+		stroke(255, 150);
+		beginShape();
+		this.points.forEach((point) => {
+			vertex(point.x, point.y);
+		});
+		endShape();
+	}
+	runEffect(frameCount) {
+		// noStroke();
+		noFill();
+		stroke(255, 255, 255, 150);
+		let d = 0;
+		let phase = 0;
+		this.points.forEach((point) => {
+			phase = dist(mouseX, mouseY, point.x, point.y);
+			d = 300 * sin(frameCount + phase);
+			circle(point.x, point.y, d);
+		});
+	}
 }
 // -- EOSKETCH

@@ -325,8 +325,9 @@ class Agent {
 } // --
 // -- FUNCTION: keyPressed
 // i: toggle fullscreen
-const keyPressed = () => {
-	switch (key) {
+function keyPressed(e) {
+	console.log("key pressed...", e);
+	switch (e.key) {
 		case "f":
 			let fs = fullscreen();
 			fullscreen(!fs);
@@ -334,5 +335,5 @@ const keyPressed = () => {
 		default:
 			break;
 	}
-};
+} // --
 // -- EOSKETCH

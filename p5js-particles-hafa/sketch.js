@@ -352,35 +352,6 @@ class Particle {
 		this.vy *= -1;
 	}
 } // --
-// -- CLASS: AGENT
-class Agent {
-	constructor(point) {
-		this.point = point;
-		this.pos = createVector(point.x, point.y);
-		this.vel = createVector(random(-2, 2), random(-2, 2));
-		this.accel = createVector(0, 0);
-		this.diam = 32;
-	}
-
-	applyForce(power) {
-		this.accel.add(power);
-	}
-
-	update() {
-		this.vel.add(this.accel);
-		this.pos.add(this.vel);
-		this.accel.mult(0); // clean acceleration
-	}
-
-	draw() {
-		console.log("Agent/draw");
-		fill(255, 182, 139, 128); // tertiary (dark)
-		// noFill();
-		noStroke();
-		ellipse(this.pos.x, this.pos.y, this.diameter, this.diameter);
-		circle(this.pos.x, this.pos.y, this.diameter);
-	}
-} // --
 // -- FUNCTION: drawParticleLines
 // i: draw lines between closer particles
 const drawParticleLines = (particles) => {
