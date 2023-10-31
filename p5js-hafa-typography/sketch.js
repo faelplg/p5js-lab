@@ -6,11 +6,16 @@
 let grid;
 let numCols = 12;
 let numRows = 12;
+
+let font;
+let text = "ha.fa";
+let textAgent;
 // --
 
 // -- PRELOAD DATA
-// function preload() {
-// } // --
+function preload() {
+	font = loadFont("Roboto-Regular.ttf");
+} // --
 
 // -- SETUP CANVAS
 function setup() {
@@ -27,6 +32,10 @@ function setup() {
 	// - section: init grid
 	grid = new Grid(numCols, numRows, windowWidth, windowHeight);
 	grid.initGrid();
+
+	// - section: init text agent
+	textAgent = new TextAgent(text, font);
+	textAgent.init();
 } // --
 
 // -- DRAW CANVAS
@@ -41,8 +50,9 @@ function draw() {
 	// - section: draw
 	grid.drawGridLines();
 	// grid.drawPoints();
-	grid.drawAgents({reset: "bounce", frameCount});
-	//
+	// grid.drawAgents("bounce", frameCount);
+
+	textAgent.draw(frameCount);
 } // --
 
 // -- CLASS: GRID
@@ -71,7 +81,7 @@ class Grid {
 		this.agents = Array(this.numPoints); // agents
 	}
 	// - method: init matrix grid
-	initGrid(OPTIONS) {
+	initGrid(OPTION) {
 		let x, y;
 		let i = 0;
 		for (let r = 0; r < this.hLines.length; r++) {
@@ -80,7 +90,7 @@ class Grid {
 				x = c * this.cw;
 				this.matrix[r][c] = new Point(x, y);
 				this.points[i] = this.matrix[r][c];
-				switch (OPTIONS) {
+				switch (OPTION) {
 					case "random":
 						break;
 					default:
@@ -128,11 +138,10 @@ class Grid {
 		});
 	}
 	// - method: draw agents
-	drawAgents(OPTIONS) {
-		const { reset } = OPTIONS;
+	drawAgents(OPTION, frameCount) {
 		this.agents.forEach((agent) => {
 			// section: reset strategy
-			switch (reset) {
+			switch (OPTION) {
 				case "bounce": // bounce at edges
 					if (agent.position.x < 0 || agent.position.x > this.width) {
 						agent.bounceX();
@@ -172,7 +181,7 @@ class Grid {
 					break;
 			}
 			agent.update();
-			agent.draw(OPTIONS);
+			agent.draw();
 		});
 	}
 } // --
@@ -207,7 +216,7 @@ class Agent {
 	}
 
 	// - method: draw agent
-	draw(OPTIONS) {
+	draw() {
 		// fill("#72DAA5"); // primary (dark)
 		fill(114, 218, 165, 150); // primary (dark) + transparency
 		noStroke();
@@ -261,14 +270,54 @@ class LineAgent {
 	}
 } // --
 
-// -- FUNCTION: windowResized
-// i: recalculate canvas size
-function windowResized() {
-	console.log("-- WINDOW RESIZED --");
-	resizeCanvas(windowWidth, windowHeight);
-	grid = new Grid(numCols, numRows, windowWidth, windowHeight);
-	grid.initGrid();
-} // --
+// -- CLASS: TEXT AGENT
+class TextAgent {
+	constructor(text, font) {
+		this.font = font;
+		this.text = text;
+		this.fontSize = 300;
+    this.diameter = 16;
+		this.points = font.textToPoints(text, 0, 0, this.fontSize, {
+			simpleFactor: 0.1,
+			simplifyThreshold: 0,
+		});
+		this.bounds = font.textBounds(text, 0, 0, this.fontSize);
+	}
+
+	// - method: init text agent
+	init() {
+		let xCenter = (width - this.bounds.w) * 0.5;
+		let yCenter = (height + this.bounds.h) * 0.5;
+		this.bounds.x += xCenter;
+		this.bounds.y += yCenter;
+		for (let ponto of this.points) {
+			ponto.x += xCenter;
+			ponto.y += yCenter;
+		}
+	}
+
+	// - method: draw text
+	draw(frameCount) {
+    // - section: draw bounding box
+		// stroke("#E1E3DF"); // on-surface (dark)
+		// strokeWeight(8);
+		// rect(this.bounds.x, this.bounds.y, this.bounds.w, this.bounds.h);
+
+    // - section: draw circles
+		fill(114, 218, 165, 32); // primary (dark) + transparency
+		// noFill();
+		stroke(114, 218, 165, 150); // primary (dark) + transparency
+		strokeWeight(4);
+		// noStroke();
+    let d = 0;
+    let phase = 0;
+		for (let p of this.points) {
+      phase = dist(mouseX, mouseY, p.x, p.y);
+      d = 100 * sin(frameCount + phase);
+			circle(p.x, p.y, d);
+		}
+	}
+}
 
 // -- FUNCTION: keyPressed
 // i: toggle fullscreen

@@ -1,5 +1,4 @@
 let nb = 500;
-let dMin = 50;
 let noiseScale = 0.01;
 let noiseAngle = 360;
 let noiseSpeed = 10;

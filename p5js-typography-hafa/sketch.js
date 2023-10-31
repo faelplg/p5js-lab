@@ -7,11 +7,11 @@ let numCols = 30;
 let numRows = 30;
 let font;
 let text;
-let txt = "amor";
+let txt = "dmstk";
 // --
 // -- PRELOAD DATA
 function preload() {
-	font = loadFont("Monofett-Regular.ttf");
+	font = loadFont("Roboto-Regular.ttf");
 }
 // -- SETUP CANVAS
 function setup() {
@@ -270,7 +270,7 @@ class Text {
 		let phase = 0;
 		this.points.forEach((point) => {
 			phase = dist(mouseX, mouseY, point.x, point.y);
-			d = 300 * sin(frameCount + phase);
+			d = 100 * sin(frameCount + phase);
 			circle(point.x, point.y, d);
 		});
 	}

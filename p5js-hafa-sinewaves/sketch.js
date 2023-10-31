@@ -4,8 +4,8 @@
 
 // -- SHARED VARIABLES
 let grid;
-let numCols = 12;
-let numRows = 12;
+let numCols = 48;
+let numRows = 48;
 // --
 
 // -- PRELOAD DATA
@@ -18,6 +18,7 @@ function setup() {
 	createCanvas(windowWidth, windowHeight);
 	angleMode(DEGREES);
 	frameRate(30);
+	colorMode(HSB);
 	// noLoop();
 
 	// - section: project styles
@@ -38,10 +39,11 @@ function draw() {
 	// - section: control variables
 	//
 
+	// - section: modify agents with sine waves calculation
 	// - section: draw
 	grid.drawGridLines();
 	// grid.drawPoints();
-	grid.drawAgents({reset: "bounce", frameCount});
+	grid.drawAgents({ reset: "bounce", frameCount, mouseX, mouseY });
 	//
 } // --
 
@@ -71,7 +73,7 @@ class Grid {
 		this.agents = Array(this.numPoints); // agents
 	}
 	// - method: init matrix grid
-	initGrid(OPTIONS) {
+	initGrid(OPTION) {
 		let x, y;
 		let i = 0;
 		for (let r = 0; r < this.hLines.length; r++) {
@@ -80,11 +82,11 @@ class Grid {
 				x = c * this.cw;
 				this.matrix[r][c] = new Point(x, y);
 				this.points[i] = this.matrix[r][c];
-				switch (OPTIONS) {
+				switch (OPTION) {
 					case "random":
 						break;
 					default:
-						this.agents[i] = new Agent(
+						this.agents[i] = new WaveAgent(
 							createVector(this.points[i].x, this.points[i].y),
 						);
 						break;
@@ -129,10 +131,9 @@ class Grid {
 	}
 	// - method: draw agents
 	drawAgents(OPTIONS) {
-		const { reset } = OPTIONS;
 		this.agents.forEach((agent) => {
 			// section: reset strategy
-			switch (reset) {
+			switch (OPTIONS.reset) {
 				case "bounce": // bounce at edges
 					if (agent.position.x < 0 || agent.position.x > this.width) {
 						agent.bounceX();
@@ -207,7 +208,7 @@ class Agent {
 	}
 
 	// - method: draw agent
-	draw(OPTIONS) {
+	draw() {
 		// fill("#72DAA5"); // primary (dark)
 		fill(114, 218, 165, 150); // primary (dark) + transparency
 		noStroke();
@@ -258,6 +259,28 @@ class LineAgent {
 		strokeWeight(8);
 
 		line(this.origin.x, this.origin.y, this.target.x, this.target.y);
+	}
+} // --
+
+// -- CLASS: WAVE AGENT
+class WaveAgent extends Agent {
+	constructor(vector) {
+		super(vector);
+		this.frequence = -1.0;
+		this.speed = 4;
+	}
+	draw(OPTIONS) {
+		const { frameCount, mouseX, mouseY } = OPTIONS;
+		let mouse, dist, sine, f;
+    
+		mouse = createVector(mouseX, mouseY);
+		dist = p5.Vector.dist(this.position, mouse);
+		sine = sin(this.frequence * this.speed * frameCount + dist);
+		f = 4 * sine * this.diameter;
+    
+		noStroke();
+		fill(dist % 360, 100, 100);
+		ellipse(this.position.x, this.position.y, f, f);
 	}
 } // --
 

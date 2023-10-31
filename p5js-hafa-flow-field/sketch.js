@@ -4,13 +4,9 @@
 
 // -- SHARED VARIABLES
 let grid;
-let numCols = 12;
-let numRows = 12;
+let numCols = 36;
+let numRows = 36;
 // --
-
-// -- PRELOAD DATA
-// function preload() {
-// } // --
 
 // -- SETUP CANVAS
 function setup() {
@@ -18,11 +14,12 @@ function setup() {
 	createCanvas(windowWidth, windowHeight);
 	angleMode(DEGREES);
 	frameRate(30);
+  colorMode(HSB);
 	// noLoop();
 
 	// - section: project styles
 	// background("#191C1A"); // background (dark)
-	// background(25, 28, 26, 255); // background (dark) transparency
+	background(25, 28, 26, 255); // background (dark) transparency
 
 	// - section: init grid
 	grid = new Grid(numCols, numRows, windowWidth, windowHeight);
@@ -31,17 +28,18 @@ function setup() {
 
 // -- DRAW CANVAS
 function draw() {
+  // console.log(grid);
 	// - section: style canvas
 	// background("#191C1A"); // background (dark)
-	background(25, 28, 26, 255); // background (dark) transparent
+	// background(25, 28, 26, 255); // background (dark) transparent
 
 	// - section: control variables
 	//
 
 	// - section: draw
-	grid.drawGridLines();
+	// grid.drawGridLines();
 	// grid.drawPoints();
-	grid.drawAgents({reset: "bounce", frameCount});
+	grid.drawAgents("reset", frameCount);
 	//
 } // --
 
@@ -71,7 +69,7 @@ class Grid {
 		this.agents = Array(this.numPoints); // agents
 	}
 	// - method: init matrix grid
-	initGrid(OPTIONS) {
+	initGrid(OPTION) {
 		let x, y;
 		let i = 0;
 		for (let r = 0; r < this.hLines.length; r++) {
@@ -80,11 +78,11 @@ class Grid {
 				x = c * this.cw;
 				this.matrix[r][c] = new Point(x, y);
 				this.points[i] = this.matrix[r][c];
-				switch (OPTIONS) {
+				switch (OPTION) {
 					case "random":
 						break;
 					default:
-						this.agents[i] = new Agent(
+						this.agents[i] = new FieldAgent(
 							createVector(this.points[i].x, this.points[i].y),
 						);
 						break;
@@ -128,11 +126,10 @@ class Grid {
 		});
 	}
 	// - method: draw agents
-	drawAgents(OPTIONS) {
-		const { reset } = OPTIONS;
+	drawAgents(OPTION, frameCount) {
 		this.agents.forEach((agent) => {
 			// section: reset strategy
-			switch (reset) {
+			switch (OPTION) {
 				case "bounce": // bounce at edges
 					if (agent.position.x < 0 || agent.position.x > this.width) {
 						agent.bounceX();
@@ -171,9 +168,27 @@ class Grid {
 
 					break;
 			}
+			// agent.applyForce(createVector(0, -1));
 			agent.update();
-			agent.draw(OPTIONS);
+			agent.draw(frameCount);
 		});
+	}
+} // --
+
+// -- CLASS: LINE AGENT
+class LineAgent {
+	constructor(origin, target) {
+		this.origin = origin;
+		this.target = target;
+	}
+
+	// - method: init matrix grid
+	draw() {
+		noFill();
+		stroke("#404943"); // surface-variant (dark)
+		strokeWeight(8);
+
+		line(this.origin.x, this.origin.y, this.target.x, this.target.y);
 	}
 } // --
 
@@ -207,7 +222,7 @@ class Agent {
 	}
 
 	// - method: draw agent
-	draw(OPTIONS) {
+	draw() {
 		// fill("#72DAA5"); // primary (dark)
 		fill(114, 218, 165, 150); // primary (dark) + transparency
 		noStroke();
@@ -244,20 +259,37 @@ class Agent {
 }
 // --
 
-// -- CLASS: LINE AGENT
-class LineAgent {
-	constructor(origin, target) {
-		this.origin = origin;
-		this.target = target;
+class FieldAgent extends Agent {
+  // - method: class constructor
+	constructor(vector) {
+		super(vector);
+		this.noiseScale = 0.002;
+		this.noiseAngle = 360;
+		this.flowSpeed = 10;
+		this.ageMax = 50;
 	}
 
-	// - method: init matrix grid
-	draw() {
-		noFill();
-		stroke("#404943"); // surface-variant (dark)
-		strokeWeight(8);
+  // - method: set agent flow
+	setFlow() {
+		let n =
+			this.noiseAngle *
+			noise(
+				this.noiseScale * this.position.x,
+				this.noiseScale * this.position.y,
+			);
 
-		line(this.origin.x, this.origin.y, this.target.x, this.target.y);
+		this.velocity.x = this.flowSpeed * cos(n);
+		this.velocity.y = this.flowSpeed * sin(n);
+	}
+  
+	// - method: draw agent
+	draw(frameCount) {
+		noFill();
+		stroke(114, 218, 165, map(frameCount, 1, this.ageMax, 255, 0)); // primary (dark) + transparency
+
+		this.diameter = 2;
+    this.setFlow();
+		ellipse(this.position.x, this.position.y, this.diameter, this.diameter);
 	}
 } // --
 
@@ -266,8 +298,7 @@ class LineAgent {
 function windowResized() {
 	console.log("-- WINDOW RESIZED --");
 	resizeCanvas(windowWidth, windowHeight);
-	grid = new Grid(numCols, numRows, windowWidth, windowHeight);
-	grid.initGrid();
+  setup();
 } // --
 
 // -- FUNCTION: keyPressed
