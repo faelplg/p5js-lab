@@ -6,20 +6,31 @@
 let grid;
 let numCols = 36;
 let numRows = 36;
+
+let settings = {
+	showGrid: true,
+	gridType: "lines",
+	showTrail: false,
+	showAgents: true,
+};
 // --
 
 // -- SETUP CANVAS
 function setup() {
-	// - section: project settings
+	console.log("### setting up canvas...");
+	// - section: canvas settings
 	createCanvas(windowWidth, windowHeight);
 	angleMode(DEGREES);
 	frameRate(30);
-  colorMode(HSB);
+	colorMode(HSB);
 	// noLoop();
 
-	// - section: project styles
-	// background("#191C1A"); // background (dark)
-	background(25, 28, 26, 255); // background (dark) transparency
+	// - section: canvas styles
+	background(30, 50, 50); // background (dark) transparency
+	noFill();
+	noStroke();
+	strokeWeight(1);
+
 
 	// - section: init grid
 	grid = new Grid(numCols, numRows, windowWidth, windowHeight);
@@ -28,7 +39,7 @@ function setup() {
 
 // -- DRAW CANVAS
 function draw() {
-  // console.log(grid);
+	// console.log(grid);
 	// - section: style canvas
 	// background("#191C1A"); // background (dark)
 	// background(25, 28, 26, 255); // background (dark) transparent
@@ -260,7 +271,7 @@ class Agent {
 // --
 
 class FieldAgent extends Agent {
-  // - method: class constructor
+	// - method: class constructor
 	constructor(vector) {
 		super(vector);
 		this.noiseScale = 0.002;
@@ -269,7 +280,7 @@ class FieldAgent extends Agent {
 		this.ageMax = 50;
 	}
 
-  // - method: set agent flow
+	// - method: set agent flow
 	setFlow() {
 		let n =
 			this.noiseAngle *
@@ -281,14 +292,14 @@ class FieldAgent extends Agent {
 		this.velocity.x = this.flowSpeed * cos(n);
 		this.velocity.y = this.flowSpeed * sin(n);
 	}
-  
+
 	// - method: draw agent
 	draw(frameCount) {
 		noFill();
 		stroke(114, 218, 165, map(frameCount, 1, this.ageMax, 255, 0)); // primary (dark) + transparency
 
 		this.diameter = 2;
-    this.setFlow();
+		this.setFlow();
 		ellipse(this.position.x, this.position.y, this.diameter, this.diameter);
 	}
 } // --
@@ -298,7 +309,7 @@ class FieldAgent extends Agent {
 function windowResized() {
 	console.log("-- WINDOW RESIZED --");
 	resizeCanvas(windowWidth, windowHeight);
-  setup();
+	setup();
 } // --
 
 // -- FUNCTION: keyPressed

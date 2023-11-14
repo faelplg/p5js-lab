@@ -3,6 +3,8 @@ let grid;
 let numCols = 1;
 let numRows = 0;
 
+let liquid;
+
 // -- PROJECT SETTINGS
 let settings = {
 	showGrid: true,
@@ -32,9 +34,12 @@ function setup() {
 	noStroke();
 	strokeWeight(1);
 
+	// - section: canvas environment
+	liquid = new Liquid(0, height * 0.5, width, height * 0.5, 0.1);
+
 	// - section: canvas grid
 	grid = new Grid(numCols, numRows, windowWidth, windowHeight);
-	grid.init();
+	grid.init({ environment: liquid });
 	if (settings.showGrid) grid.draw();
 } // --
 
@@ -49,10 +54,13 @@ function draw() {
 	// - section: draw grid
 	if (settings.showGrid && frameCount > 1) grid.draw();
 
+	// - section: render environment
+	// grid.environment();
+
 	// - section: render grid agents
 	grid.render({
 		reset: "bounce",
 		frameCount,
 	});
-	//
+	
 } // --

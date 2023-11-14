@@ -14,7 +14,11 @@ let textAgent;
 
 // -- PRELOAD DATA
 function preload() {
-	font = loadFont("Roboto-Regular.ttf");
+	// font = loadFont("NotoSans-SemiBold.ttf");
+	// font = loadFont("NotoSansMono-VariableFont_wdth,wght.ttf");
+	// font = loadFont("Roboto-Regular.ttf");
+	// font = loadFont("Monofett-Regular.ttf");
+	font = loadFont("./static/AdventPro-Bold.ttf");
 } // --
 
 // -- SETUP CANVAS
@@ -275,8 +279,8 @@ class TextAgent {
 	constructor(text, font) {
 		this.font = font;
 		this.text = text;
-		this.fontSize = 300;
-    this.diameter = 16;
+		this.fontSize = 400;
+    this.diameter = 32;
 		this.points = font.textToPoints(text, 0, 0, this.fontSize, {
 			simpleFactor: 0.1,
 			simplifyThreshold: 0,
@@ -304,7 +308,7 @@ class TextAgent {
 		// rect(this.bounds.x, this.bounds.y, this.bounds.w, this.bounds.h);
 
     // - section: draw circles
-		fill(114, 218, 165, 32); // primary (dark) + transparency
+		fill(114, 218, 165, 10); // primary (dark) + transparency
 		// noFill();
 		stroke(114, 218, 165, 150); // primary (dark) + transparency
 		strokeWeight(4);
@@ -313,7 +317,7 @@ class TextAgent {
     let phase = 0;
 		for (let p of this.points) {
       phase = dist(mouseX, mouseY, p.x, p.y);
-      d = 100 * sin(frameCount + phase);
+      d = 150 * sin(frameCount + phase);
 			circle(p.x, p.y, d);
 		}
 	}
